@@ -21,6 +21,7 @@
     <h1>{{ title }}</h1>
     <div class="card">
         <form method="post">
+            <h3>Select Product(s) to create an order</h3>
             {% csrf_token %}
             {{ formset.management_form }}
             {{ formset.non_form_errors }}

@@ -1,18 +1,35 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Box Recommendation</title>
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: Arial, sans-serif;
-            max-width: 800px;
+            max-width: 850px;
             margin: 40px auto;
             padding: 0 20px;
             background: #f5f7fb;
             color: #222;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1f2937;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
         }
 
         .card {
@@ -31,70 +48,234 @@
             border-left: 5px solid #d97706;
         }
 
-        a {
+        h2 {
+            margin-top: 0;
+        }
+
+        .success h2 {
+            color: #198754;
+        }
+
+        .warning h2 {
+            color: #b45309;
+        }
+
+        .details {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 15px;
+        }
+
+        .detail-item {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 7px;
+        }
+
+        .detail-item strong {
+            display: block;
+            margin-bottom: 7px;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .detail-item span {
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f3f4f6;
+        }
+
+        .reason {
+            background: #f0fdf4;
+            padding: 15px;
+            border-radius: 7px;
+            line-height: 1.6;
+        }
+
+        .button {
+            display: inline-block;
             background: #2457d6;
             color: white;
-            padding: 10px 15px;
-            border-radius: 5px;
+            padding: 11px 18px;
+            border-radius: 6px;
             text-decoration: none;
+            margin-top: 10px;
+        }
+
+        .button:hover {
+            background: #1d43a5;
+        }
+
+        .footer {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        @media (max-width: 600px) {
+            .details {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            th, td {
+                padding: 8px;
+                font-size: 13px;
+            }
         }
     </style>
 </head>
 
 <body>
+
     <h1>Box Recommendation</h1>
 
+    <p class="subtitle">
+        Find the most suitable shipping box for your order.
+    </p>
+
+    <!-- Order details -->
     <div class="card">
         <h2>Order #{{ order.id }}</h2>
 
+        <p>
+            <strong>Created:</strong>
+            {{ order.created_at|date:"d M Y, h:i A" }}
+        </p>
+
         <h3>Products in this order</h3>
 
-        <ul>
-            {% for item in order.items.all %}
-                <li>
-                    {{ item.product.name }}
-                    × {{ item.quantity }}
-                    ({{ item.product.weight }} kg each)
-                </li>
-            {% empty %}
-                <li>This order has no products.</li>
-            {% endfor %}
-        </ul>
+        <table>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Dimensions (cm)</th>
+                    <th>Weight Each (kg)</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for item in order.items.all %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>
+                            {{ item.product.length }} ×
+                            {{ item.product.width }} ×
+                            {{ item.product.height }}
+                        </td>
+                        <td>{{ item.product.weight }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4">
+                            This order has no products.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 
+    <!-- Recommendation result -->
     {% if box %}
+
         <div class="card success">
             <h2>Recommended Box: {{ box.name }}</h2>
 
             <p>
-                <strong>Dimensions:</strong>
-                {{ box.length }} × {{ box.width }} × {{ box.height }} cm
+                This box passed the recommendation checks and was
+                selected based on the lowest cost among eligible boxes.
             </p>
 
-            <p>
-                <strong>Maximum Weight:</strong>
-                {{ box.max_weight }} kg
-            </p>
+            <div class="details">
 
-            <p>
-                <strong>Box Cost:</strong> ₹{{ box.cost }}
-            </p>
+                <div class="detail-item">
+                    <strong>Box Dimensions</strong>
+                    <span>
+                        {{ box.length }} ×
+                        {{ box.width }} ×
+                        {{ box.height }} cm
+                    </span>
+                </div>
 
-            <p>
-                <strong>Why this box?</strong>
+                <div class="detail-item">
+                    <strong>Maximum Weight</strong>
+                    <span>{{ box.max_weight }} kg</span>
+                </div>
+
+                <div class="detail-item">
+                    <strong>Box Cost</strong>
+                    <span>₹{{ box.cost }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <strong>Recommendation Status</strong>
+                    <span>Suitable</span>
+                </div>
+
+            </div>
+
+            <h3>Reason for Recommendation</h3>
+
+            <div class="reason">
                 {{ reason }}
+            </div>
+
+            <p>
+                <strong>Note:</strong>
+                The current algorithm checks individual product
+                dimensions, total product volume, and total weight.
+                It does not guarantee that multiple products can
+                physically fit together in the box.
             </p>
         </div>
+
     {% else %}
+
         <div class="card warning">
             <h2>No Suitable Box Found</h2>
-            <p>{{ reason }}</p>
-            <p>Add a larger box or check your product dimensions and weight.</p>
+
+            <p>
+                {{ reason|default:"No available box satisfies the current recommendation checks." }}
+            </p>
+
+            <p>
+                You can try adding a larger box, checking product
+                dimensions, or reviewing the order's total weight.
+            </p>
         </div>
+
     {% endif %}
 
-    <p>
-        <a href="{% url 'home' %}">Back to Dashboard</a>
-    </p>
+    <!-- Navigation -->
+    <div class="footer">
+        <a href="{% url 'home' %}" class="button">
+            Back to Dashboard
+        </a>
+
+        <a href="/admin/" class="button">
+            Manage Products and Boxes
+        </a>
+    </div>
+
 </body>
 </html>
