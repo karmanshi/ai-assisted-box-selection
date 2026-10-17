@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; background: #f5f7fb; color: #222; }
+        .card, .order-item { background: white; padding: 22px; margin: 16px 0; border-radius: 10px; box-shadow: 0 2px 8px #00000012; }
+        .order-item { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+        label { display: block; font-weight: bold; margin-bottom: 6px; }
+        select, input { box-sizing: border-box; width: 100%; padding: 10px; border: 1px solid #bbb; border-radius: 5px; }
+        .errorlist { color: #b42318; }
+        button, .back { background: #2457d6; color: white; padding: 10px 15px; border: 0; border-radius: 5px; text-decoration: none; cursor: pointer; }
+        .back { display: inline-block; margin-left: 8px; }
+        .secondary { background: #526174; margin-bottom: 8px; }
+        @media (max-width: 560px) { .order-item { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <h1>{{ title }}</h1>
+    <div class="card">
+        <form method="post">
+            {% csrf_token %}
+            {{ formset.management_form }}
+            {{ formset.non_form_errors }}
+            <div id="order-items">
+                {% for form in formset %}
+                    <div class="order-item">
+                        {{ form.non_field_errors }}
+                        {% for field in form %}
+                            <div>
+                                {{ field.label_tag }}
+                                {{ field }}
+                                {{ field.errors }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+            <template id="empty-order-item">
+                <div class="order-item">
+                    {% for field in formset.empty_form %}
+                        <div>
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {{ field.errors }}
+                        </div>
+                    {% endfor %}
+                </div>
+            </template>
+            <button class="secondary" id="add-order-item" type="button">Add another product</button>
+            <br>
+            <button type="submit">Create Order</button>
+            <a class="back" href="{% url 'home' %}">Cancel</a>
+        </form>
+    </div>
+    <script>
+        const itemContainer = document.getElementById("order-items");
+        const totalForms = document.getElementById("id_items-TOTAL_FORMS");
+        const emptyItem = document.getElementById("empty-order-item");
+        document.getElementById("add-order-item").addEventListener("click", () => {
+            const index = Number(totalForms.value);
+            itemContainer.insertAdjacentHTML(
+                "beforeend",
+                emptyItem.innerHTML.replaceAll("__prefix__", index)
+            );
+            totalForms.value = index + 1;
+        });
+    </script>
+</body>
+</html>

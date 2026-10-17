@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Box Selection</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+            background: #f5f7fb;
+            color: #222;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px #00000012;
+        }
+
+        a, .button {
+            background: #2457d6;
+            color: white;
+            padding: 9px 14px;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>AI-Assisted Box Selection System</h1>
+    <p>Find a suitable shipping box for each ecommerce order.</p>
+
+    <div class="card">
+        <h2>Quick Actions</h2>
+
+        <div class="links">
+            <a href="{% url 'add_product' %}">Add Product</a>
+            <a href="{% url 'add_shipping_box' %}">Add Shipping Box</a>
+            <a href="{% url 'create_order' %}">Create Order</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Products ({{ products|length }})</h2>
+
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Dimensions (cm)</th>
+                <th>Weight (kg)</th>
+            </tr>
+
+            {% for product in products %}
+            <tr>
+                <td>{{ product.name }}</td>
+                <td>
+                    {{ product.length }} ×
+                    {{ product.width }} ×
+                    {{ product.height }}
+                </td>
+                <td>{{ product.weight }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3">No products added yet.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Available Shipping Boxes ({{ boxes|length }})</h2>
+
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Dimensions (cm)</th>
+                <th>Max Weight (kg)</th>
+                <th>Cost (₹)</th>
+            </tr>
+
+            {% for box in boxes %}
+            <tr>
+                <td>{{ box.name }}</td>
+                <td>
+                    {{ box.length }} ×
+                    {{ box.width }} ×
+                    {{ box.height }}
+                </td>
+                <td>{{ box.max_weight }}</td>
+                <td>{{ box.cost }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No shipping boxes added yet.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Orders</h2>
+
+        {% for order in orders %}
+            <p>
+                <strong>Order #{{ order.id }}</strong>
+                , {{ order.items.count }} item types
+
+                <a href="{% url 'recommend' order.id %}">
+                    Recommend Box
+                </a>
+            </p>
+        {% empty %}
+            <p>No orders created yet. Use Create Order above.</p>
+        {% endfor %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Box Recommendation</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+            background: #f5f7fb;
+            color: #222;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px #00000012;
+        }
+
+        .success {
+            border-left: 5px solid #198754;
+        }
+
+        .warning {
+            border-left: 5px solid #d97706;
+        }
+
+        a {
+            background: #2457d6;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Box Recommendation</h1>
+
+    <div class="card">
+        <h2>Order #{{ order.id }}</h2>
+
+        <h3>Products in this order</h3>
+
+        <ul>
+            {% for item in order.items.all %}
+                <li>
+                    {{ item.product.name }}
+                    × {{ item.quantity }}
+                    ({{ item.product.weight }} kg each)
+                </li>
+            {% empty %}
+                <li>This order has no products.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    {% if box %}
+        <div class="card success">
+            <h2>Recommended Box: {{ box.name }}</h2>
+
+            <p>
+                <strong>Dimensions:</strong>
+                {{ box.length }} × {{ box.width }} × {{ box.height }} cm
+            </p>
+
+            <p>
+                <strong>Maximum Weight:</strong>
+                {{ box.max_weight }} kg
+            </p>
+
+            <p>
+                <strong>Box Cost:</strong> ₹{{ box.cost }}
+            </p>
+
+            <p>
+                <strong>Why this box?</strong>
+                {{ reason }}
+            </p>
+        </div>
+    {% else %}
+        <div class="card warning">
+            <h2>No Suitable Box Found</h2>
+            <p>{{ reason }}</p>
+            <p>Add a larger box or check your product dimensions and weight.</p>
+        </div>
+    {% endif %}
+
+    <p>
+        <a href="{% url 'home' %}">Back to Dashboard</a>
+    </p>
+</body>
+</html>

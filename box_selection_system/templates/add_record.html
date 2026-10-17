@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; background: #f5f7fb; color: #222; }
+        .card { background: white; padding: 24px; margin: 20px 0; border-radius: 10px; box-shadow: 0 2px 8px #00000012; }
+        .field { margin: 16px 0; }
+        label { display: block; font-weight: bold; margin-bottom: 6px; }
+        input { box-sizing: border-box; width: 100%; padding: 10px; border: 1px solid #bbb; border-radius: 5px; }
+        .helptext { display: block; color: #555; font-size: 0.9em; margin-top: 4px; }
+        .errorlist { color: #b42318; }
+        button, .back { background: #2457d6; color: white; padding: 10px 15px; border: 0; border-radius: 5px; text-decoration: none; cursor: pointer; }
+        .back { display: inline-block; margin-left: 8px; }
+    </style>
+</head>
+<body>
+    <h1>{{ title }}</h1>
+    <div class="card">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            {% for field in form %}
+                <div class="field">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.help_text %}<span class="helptext">{{ field.help_text }}</span>{% endif %}
+                    {{ field.errors }}
+                </div>
+            {% endfor %}
+            <button type="submit">{{ submit_label }}</button>
+            <a class="back" href="{% url 'home' %}">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>
